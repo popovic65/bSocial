@@ -1,0 +1,4 @@
+CREATE DATABASE userdb;
+CREATE DATABASE post;
+CREATE DATABASE comment;
+CREATE DATABASE notification;

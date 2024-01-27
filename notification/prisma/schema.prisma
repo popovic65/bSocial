@@ -1,0 +1,26 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x", "linux-musl", "linux-musl-openssl-3.0.x"]
+}
+
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Notification {
+  id               Int                @id @default(autoincrement())
+  postId           Int
+  postCreatorId    Int
+  content          String
+  senderId         Int
+  senderUsername   String
+  sent             Boolean            @default(false)
+  createdAt        DateTime           @default(now())
+  @@index([postCreatorId], name: "idx_post_creator_id")
+
+}

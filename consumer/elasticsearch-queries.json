@@ -1,0 +1,100 @@
+{
+  "queries": [
+    {
+      "name": "Latest Post for Each User",
+      "query": {
+        "size": 0,
+        "aggs": {
+          "users": {
+            "terms": {
+              "field": "userId",
+              "size": 10
+            },
+            "aggs": {
+              "latest_post": {
+                "top_hits": {
+                  "size": 1,
+                  "sort": [
+                    {
+                      "createdAt": {
+                        "order": "desc"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Top 10 Posts (by Number of Comments) Per Day in Last 10 Days",
+      "query": {
+        "size": 0,
+        "query": {
+          "range": {
+            "createdAt": {
+              "gte": "now-10d/d",
+              "lte": "now/d"
+            }
+          }
+        },
+        "aggs": {
+          "posts_per_day": {
+            "date_histogram": {
+              "field": "createdAt",
+              "calendar_interval": "day"
+            },
+            "aggs": {
+              "top_posts": {
+                "terms": {
+                  "field": "postId",
+                  "size": 10,
+                  "order": {
+                    "comment_count": "desc"
+                  }
+                },
+                "aggs": {
+                  "comment_count": {
+                    "value_count": {
+                      "field": "id"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Latest Comment for Each Post",
+      "query": {
+        "size": 0,
+        "aggs": {
+          "posts": {
+            "terms": {
+              "field": "postId",
+              "size": 10
+            },
+            "aggs": {
+              "latest_comment": {
+                "top_hits": {
+                  "size": 1,
+                  "sort": [
+                    {
+                      "createdAt": {
+                        "order": "desc"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
