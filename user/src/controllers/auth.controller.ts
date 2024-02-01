@@ -1,8 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import { CreateUserInput, LoginUserInput } from "../schemas/user.schema";
-import { createUser, findUserBy } from "../services/user.service";
 import AppError from "../utils/appError";
-import { User } from "../entities/user.entity";
+import { UserService } from "../services/user.service";
+import { UserRepository } from "../repository/user.repository";
+import { comparePasswords } from "../utils/util";
+import { User } from "../models/user.model";
+
+const userService = new UserService(new UserRepository());
 
 export const registerUserHandler = async (
   req: Request<{}, {}, CreateUserInput>,
@@ -12,7 +16,7 @@ export const registerUserHandler = async (
   try {
     const { firstName, lastName, username, password } = req.body;
 
-    const user = await createUser({
+    const user = await userService.createUser({
       firstName,
       lastName,
       username,
@@ -41,12 +45,12 @@ export const loginUserHandler = async (
 ) => {
   try {
     const { username, password } = req.body;
-    const user = await findUserBy({ username });
+    const user = await userService.findUserBy({ username });
 
-    if (!user || !(await User.comparePasswords(password, user.password))) {
+    if (!user?.password || !(await comparePasswords(password, user.password))) {
       return next(new AppError(400, "Invalid email or password"));
     }
-    const following = user.following.map((e) => e.id);
+    const following = user.following.map((e: User) => e.id);
     const data = { userId: user.id, username, following };
 
     res.status(200).json({
@@ -54,6 +58,12 @@ export const loginUserHandler = async (
       data,
     });
   } catch (err: any) {
+    if (err.code === "23505") {
+      return res.status(409).json({
+        status: "fail",
+        message: "User with that username already exist!",
+      });
+    }
     next(err);
   }
 };

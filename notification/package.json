@@ -19,7 +19,7 @@
     "jsonwebtoken": "^9.0.2",
     "kafkajs": "^2.2.4",
     "morgan": "^1.10.0",
-    "prisma": "^5.8.1",
+    "prisma": "5.8.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {

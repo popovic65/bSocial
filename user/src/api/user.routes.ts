@@ -15,7 +15,6 @@ const router = express.Router();
 
 router.get("/me", getUserHandler);
 router.get("/:username", findByUsernameController);
-// router.get("/:id", findUserController);
 router.get("/", findUsersController);
 router.post("/follow", validate(followUserSchema), followUserController);
 router.get("/following/:id", getFollowingController);

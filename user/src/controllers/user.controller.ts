@@ -1,11 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import {
-  findUsers,
-  findUserBy,
-  followUser,
-  getFollowing,
-  getFollowers,
-} from "../services/user.service";
+import { UserRepository } from "../repository/user.repository";
+import { UserService } from "../services/user.service";
+
+const userService = new UserService(new UserRepository());
 
 export const getUserHandler = async (
   req: Request,
@@ -33,7 +30,7 @@ export const findUserController = async (req: Request, res: Response) => {
     const { id } = req.params;
     const userId = parseInt(id);
 
-    const data = await findUserBy({ userId });
+    const data = await { userId };
 
     if (data) {
       return res.status(200).json({ data: data });
@@ -49,7 +46,7 @@ export const findByUsernameController = async (req: Request, res: Response) => {
   try {
     const { username } = req.params;
     console;
-    const data = await findUserBy({ username });
+    const data = await userService.findUserBy({ username });
     if (data) {
       return res.status(200).json(data);
     } else {
@@ -63,8 +60,9 @@ export const findByUsernameController = async (req: Request, res: Response) => {
 
 export const findUsersController = async (req: Request, res: Response) => {
   try {
-    const query = req.query;
-    const data = await findUsers(query);
+    const limit = req.query["limit"] ? Number(req.query["limit"]) : 50;
+    const offset = req.query["offset"] ? Number(req.query["offset"]) : 0;
+    const data = await userService.findUsers(limit, offset);
 
     if (data) {
       return res.status(200).json(data);
@@ -83,7 +81,7 @@ export const followUserController = async (req: Request, res: Response) => {
   const { followedId } = req.body;
   const { userId } = req.body.user;
   try {
-    const success = await followUser(userId, followedId);
+    const success = await userService.followUser(userId, followedId);
     if (success) {
       res.status(200).send({ message: "User followed successfully" });
     } else {
@@ -103,7 +101,8 @@ export const getFollowingController = async (
 ): Promise<void> => {
   const { id } = req.params;
   try {
-    const following = await getFollowing(parseInt(id, 10));
+    const userId = parseInt(id, 10);
+    const following = await userService.getFollowing(userId);
     res.status(200).json(following);
   } catch (error) {
     console.error(error);
@@ -116,7 +115,8 @@ export const getFollowersController = async (
 ): Promise<void> => {
   const { id } = req.params;
   try {
-    const followers = await getFollowers(parseInt(id, 10));
+    const userId = parseInt(id, 10);
+    const followers = await userService.getFollowers(userId);
     res.status(200).json(followers);
   } catch (error) {
     console.error(error);

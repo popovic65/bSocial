@@ -1,8 +1,4 @@
-version: "3"
-
-networks:
-  bridge_net:
-    driver: bridge
+version: "3.9"
 
 services:
   api-gateway:
@@ -14,31 +10,26 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - user
+      user:
+        condition: service_started
     restart: always
 
   zookeeper:
     image: wurstmeister/zookeeper
     ports:
       - "2181:2181"
-    networks:
-      - bridge_net
 
   kafka:
     image: wurstmeister/kafka
     container_name: kafka
     ports:
       - "9092:9092"
-    expose:
-      - "9093"
     environment:
       KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9093,OUTSIDE://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_LISTENERS: INSIDE://0.0.0.0:9093,OUTSIDE://0.0.0.0:9092
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-    networks:
-      - bridge_net
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
@@ -48,8 +39,6 @@ services:
     ports:
       - "9200:9200"
       - "9300:9300"
-    networks:
-      - bridge_net
 
   postgres:
     image: postgres
@@ -68,8 +57,10 @@ services:
 
   user:
     depends_on:
-      - postgres
-      - kafka
+      postgres:
+        condition: service_started
+      kafka:
+        condition: service_started
     build:
       context: ./user
       dockerfile: Dockerfile
@@ -80,13 +71,13 @@ services:
       - .:/app
     env_file:
       - ./user/.env
-    networks:
-      - bridge_net
 
   post:
     depends_on:
-      - postgres
-      - kafka
+      postgres:
+        condition: service_started
+      kafka:
+        condition: service_started
     build:
       context: ./post
       dockerfile: Dockerfile
@@ -97,13 +88,13 @@ services:
       - .:/app
     env_file:
       - ./post/.env
-    networks:
-      - bridge_net
 
   comment:
     depends_on:
-      - postgres
-      - kafka
+      postgres:
+        condition: service_started
+      kafka:
+        condition: service_started
     build:
       context: ./comment
       dockerfile: Dockerfile
@@ -111,16 +102,16 @@ services:
     ports:
       - "8002:8002"
     volumes:
-      - .:/app/
+      - .:/app
     env_file:
       - ./.env
-    networks:
-      - bridge_net
 
   notification:
     depends_on:
-      - postgres
-      - kafka
+      postgres:
+        condition: service_started
+      kafka:
+        condition: service_started
     build:
       context: ./notification
       dockerfile: Dockerfile
@@ -131,8 +122,6 @@ services:
       - .:/app
     env_file:
       - ./notification/.env
-    networks:
-      - bridge_net
 
   consumer:
     build:
@@ -149,11 +138,10 @@ services:
       - KAFKA_BROKER=kafka:9093
       - ELASTICSEARCH_HOST=elasticsearch:9200
     depends_on:
-      - elasticsearch
-      - kafka
-    networks:
-      - bridge_net
+      elasticsearch:
+        condition: service_started
+      kafka:
+        condition: service_started
 
 volumes:
   postgres-data:
-    driver: local
