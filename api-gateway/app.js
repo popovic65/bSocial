@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+const morgan = require("morgan");
 const proxy = require("express-http-proxy");
 const authRouter = require("./routes/auth.route");
 const authenticateJWT = require("./routes/middleware/auth");
@@ -8,6 +9,7 @@ const app = express();
 const PORT = process.env.PORT;
 
 app.use(express.json());
+app.use(morgan("dev"));
 app.use("/auth", authRouter);
 app.use("/user", authenticateJWT, proxy(`${process.env.USER_SERVICE_URL}`));
 app.use("/post", authenticateJWT, proxy(`${process.env.POST_SERVICE_URL}`));

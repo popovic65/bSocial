@@ -4,7 +4,6 @@ import AppError from "../utils/appError";
 import { UserService } from "../services/user.service";
 import { UserRepository } from "../repository/user.repository";
 import { comparePasswords } from "../utils/util";
-import { User } from "../models/user.model";
 
 const userService = new UserService(new UserRepository());
 
@@ -45,13 +44,11 @@ export const loginUserHandler = async (
 ) => {
   try {
     const { username, password } = req.body;
-    const user = await userService.findUserBy({ username });
-
-    if (!user?.password || !(await comparePasswords(password, user.password))) {
+    const user = await userService.getUserLoginData(username);
+    if (!user.password || !(await comparePasswords(password, user.password))) {
       return next(new AppError(400, "Invalid email or password"));
     }
-    const following = user.following.map((e: User) => e.id);
-    const data = { userId: user.id, username, following };
+    const data = { userId: user.id, username, following: user.followingIds };
 
     res.status(200).json({
       status: "success",

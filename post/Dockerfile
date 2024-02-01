@@ -13,3 +13,4 @@ COPY . .
 EXPOSE 8000
 
 CMD yarn db:push && yarn dev
+

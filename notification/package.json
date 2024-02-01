@@ -10,6 +10,7 @@
     "db:migrate": "npx prisma migrate dev --name init",
     "db:generate": "npx prisma generate",
     "db:push": "npx prisma db push",
+    "db:deploy": "npx prisma migrate deploy",
     "test": "jest"
   },
   "dependencies": {

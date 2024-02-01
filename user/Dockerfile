@@ -12,4 +12,4 @@ COPY . .
 
 EXPOSE 8000
 
-CMD yarn db:migrate &&  yarn dev
+CMD yarn db:push &&  yarn dev
