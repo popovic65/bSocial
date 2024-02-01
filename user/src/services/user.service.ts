@@ -48,10 +48,10 @@ export class UserService {
   async findUserBy(options: { username?: string; userId?: number }) {
     if (options.username) {
       const user = await this._repository.findOneByUsername(options.username);
-      return user;
+      return toJSON(user);
     } else if (options.userId) {
       const user = await this._repository.findOne(options.userId);
-      return user;
+      return toJSON(user);
     }
     return null;
   }
