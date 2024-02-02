@@ -4,7 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only --exit-child src/server.ts"
+    "dev": "ts-node-dev --respawn --transpile-only --exit-child src/server.ts",
+    "start": "node dist/src/server.js",
+    "build": "tsc -p ."
   },
   "dependencies": {
     "@elastic/elasticsearch": "^7.10.0",

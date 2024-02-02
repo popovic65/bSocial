@@ -10,6 +10,8 @@ RUN yarn
 
 COPY . .
 
+RUN yarn build
+
 EXPOSE 8005
 
-CMD yarn dev
+CMD yarn start
